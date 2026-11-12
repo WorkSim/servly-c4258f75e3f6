@@ -47,8 +47,16 @@ func (s *Store) List(limit, offset int) []Record {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	page := make([]Record, len(s.records))
-	copy(page, s.records)
+	limit = min(limit, MaxLimit)
+	total := len(s.records)
+	if limit <= 0 || offset < 0 || offset >= total {
+		// Non-nil so the handler encodes `[]`, not `null`.
+		return []Record{}
+	}
+
+	end := min(offset+limit, total)
+	page := make([]Record, end-offset)
+	copy(page, s.records[offset:end])
 	return page
 }
 
