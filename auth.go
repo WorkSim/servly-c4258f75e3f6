@@ -63,6 +63,9 @@ func ValidateToken(store *TokenStore, bearer string, now time.Time) (Token, erro
 	if !ok {
 		return Token{}, ErrTokenNotFound
 	}
+	if now.After(tok.ExpiresAt) {
+		return Token{}, ErrTokenExpired
+	}
 	return tok, nil
 }
 
